@@ -1,4 +1,3 @@
-import requests
 from Clases.materia import Materia
 from Clases.lista_profesores import Docente
 from Datos.Profesores import datos_crudos
@@ -41,14 +40,17 @@ class App:
     def run(self):
         while True:
             print("""
---- INICIO DEL SISTEMA ---
-1. Cargar datos e ir al menú principal
-2. Inicializar sistema sin cargar datos e ir al menú principal
-3. Cargar datos y generar horario directamente
-0. Salir
+======================================================
+               *** INICIO DEL SISTEMA ***
+======================================================
+  [1] Cargar datos e ir al menú principal
+  [2] Inicializar sistema vacío e ir al menú principal
+  [3] Cargar datos y generar horario directamente
+  [0] Salir
+======================================================
 """)
             try:
-                opc_inicio = int(input("Seleccione una opción: "))
+                opc_inicio = int(input(">> Seleccione una opción: "))
             except ValueError:
                 continue
                 
@@ -67,13 +69,23 @@ class App:
                 
         while True:
             print("""
-1. Profesores
-2. Materias
-3. Generación de horarios
-4. Modificación de horarios
-0. Salir
+==============================================
+             *** MENÚ PRINCIPAL ***
+==============================================
+  [1] Módulo de Profesores
+  [2] Módulo de Materias
+  [3] Generación de Horarios
+  [4] Modificación de Horarios
+  [5] Estadísticas del Sistema
+  [0] Salir
+==============================================
 """)
-            menu = int(input("Ingrese un numero para escoger entre las siguientes opciones: "))
+            try:
+                menu = int(input(">> Ingrese una opción: "))
+            except ValueError:
+                print("Error: Por favor, ingrese un número válido.")
+                continue
+                
             if menu == 0:
                 break
             elif menu == 1:
@@ -84,18 +96,29 @@ class App:
                 self.crear_horario()
             elif menu == 4:
                 self.modificacion()
+            elif menu == 5:
+                self.estadisticas()
     
     def profesores(self):
         while True:
             print("""
-1. Lista de profesores
-2. Ver un profesor especifico
-3. Agregar un profesor a la lista
-4. Eliminar un profesor de la lista
-5. Modificar la lista de materias de un profesor 
-0. Regresar
+==============================================
+           *** MENÚ DE PROFESORES ***
+==============================================
+  [1] Ver lista de todos los profesores
+  [2] Buscar un profesor específico
+  [3] Agregar nuevo profesor al sistema
+  [4] Eliminar un profesor del sistema
+  [5] Modificar materias de un profesor
+  [0] Regresar al menú principal
+==============================================
 """)
-            menu_profesores = int(input("Ingrese un numero para escoger entre las siguientes opciones: "))
+            try:
+                menu_profesores = int(input(">> Ingrese una opción: "))
+            except ValueError:
+                print("Error: Por favor, ingrese un número válido.")
+                continue
+                
             if menu_profesores == 0:
                 break
             elif menu_profesores == 1:
@@ -216,14 +239,23 @@ class App:
     def menu_materia(self):
         while True:
             print("""
-1. Lista de materias
-2. Detalles de las materias
-3. Profesores asociados con las materias
-4. Agregar o eliminar materias
-5. Modificar las secciones de las materias
-0. Regresar
+==============================================
+            *** MENÚ DE MATERIAS ***
+==============================================
+  [1] Ver lista de todas las materias
+  [2] Buscar detalles de una materia
+  [3] Ver profesores que dictan una materia
+  [4] Agregar o eliminar materias
+  [5] Modificar secciones de las materias
+  [0] Regresar al menú principal
+==============================================
 """)
-            menu_materias = int(input("Ingrese un numero para escoger entre las siguientes opciones: "))
+            try:
+                menu_materias = int(input(">> Ingrese una opción: "))
+            except ValueError:
+                print("Error: Por favor, ingrese un número válido.")
+                continue
+                
             if menu_materias == 0:
                 break
             elif menu_materias == 1:
@@ -340,9 +372,10 @@ class App:
                 a_actual = clase_elegida["asig"]
                 
                 # 3. Seleccionar acción
-                print("\n1. Cambiar el profesor de esta sección")
-                print("2. Cambiar el horario de esta sección")
-                opc_mod = input("Seleccione una opción: ").strip()
+                print("\n--- Opciones de Modificación ---")
+                print("  [1] Cambiar el profesor de esta sección")
+                print("  [2] Cambiar el horario de esta sección")
+                opc_mod = input(">> Seleccione una opción: ").strip()
                 
                 if opc_mod == "1":
                     # a. Cambiar el profesor
@@ -578,16 +611,19 @@ class App:
     def menu_horario(self):
         while True:
             print("""
---- SUBMENÚ HORARIOS ---
-1. Ver el horario de una materia
-2. Ver el horario de un profesor
-3. Ver salones asignados a una hora
-4. Guardar asignación de horarios en CSV
-5. Modificar asignación de horarios
-0. Volver al menú principal
+==============================================
+          *** SUBMENÚ DE HORARIOS ***
+==============================================
+  [1] Ver horarios de una materia
+  [2] Ver horarios de un profesor
+  [3] Ver salones asignados en una hora
+  [4] Exportar horarios a CSV
+  [5] Modificar asignación manualmente
+  [0] Regresar al menú principal
+==============================================
 """)
             try:
-                opc = int(input("Seleccione una opción: "))
+                opc = int(input(">> Seleccione una opción: "))
             except ValueError:
                 continue
                 
@@ -690,3 +726,105 @@ class App:
                     print("Clase movida exitosamente.")
                 except ValueError:
                     print("Entrada inválida. Debe ser un número.")
+
+    def estadisticas(self):
+        if not hasattr(self, 'bloques_horarios') or not self.bloques_horarios:
+            print("\nNo se ha generado ningún horario todavía.")
+            return
+            
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            print("\nError: La librería 'matplotlib' no está instalada.")
+            print("Por favor instálela con 'pip install matplotlib' y vuelva a intentar.")
+            return
+
+        while True:
+            print("""
+==============================================
+             *** ESTADÍSTICAS ***
+==============================================
+  [1] Salones ocupados por hora
+  [2] Porcentaje de carga docente asignada
+  [3] Porcentaje de secciones cerradas
+  [0] Regresar al menú principal
+==============================================
+""")
+            try:
+                opc_est = int(input(">> Seleccione una opción: "))
+            except ValueError:
+                continue
+
+            if opc_est == 0:
+                break
+            elif opc_est == 1:
+                etiquetas = [f"{b['dia']}\n{b['hora']}" for b in self.bloques_horarios]
+                ocupados = [len(b["asignaciones"]) for b in self.bloques_horarios]
+                
+                plt.figure(figsize=(10, 6))
+                plt.bar(etiquetas, ocupados, color='skyblue')
+                plt.title('Cantidad de Salones Ocupados por Bloque Horario')
+                plt.xlabel('Bloques Horarios')
+                plt.ylabel('Salones Ocupados')
+                plt.xticks(rotation=45, ha='right')
+                plt.tight_layout()
+                plt.show()
+                
+            elif opc_est == 2:
+                carga_actual = {p.cedula: 0 for p in self.profesor}
+                for b in self.bloques_horarios:
+                    for a in b["asignaciones"]:
+                        carga_actual[a["docente"].cedula] += 1
+                        
+                nombres_profesores = []
+                porcentajes_carga = []
+                for p in self.profesor:
+                    if p.max_carga > 0:
+                        pct = (carga_actual[p.cedula] / p.max_carga) * 100
+                        nombres_profesores.append(f"{p.nombre}\n{p.apellido}")
+                        porcentajes_carga.append(pct)
+                
+                if not nombres_profesores:
+                    print("No hay profesores con carga máxima definida mayor a 0.")
+                    continue
+                    
+                plt.figure(figsize=(10, 6))
+                plt.barh(nombres_profesores, porcentajes_carga, color='lightgreen')
+                plt.title('Porcentaje de Carga Asignada por Profesor')
+                plt.xlabel('Porcentaje (%)')
+                plt.ylabel('Profesor')
+                plt.xlim(0, max(100, max(porcentajes_carga) + 10) if porcentajes_carga else 100)
+                plt.tight_layout()
+                plt.show()
+                
+            elif opc_est == 3:
+                secciones_abiertas = {m.codigo: 0 for m in self.materia}
+                for b in self.bloques_horarios:
+                    for a in b["asignaciones"]:
+                        secciones_abiertas[a["materia"].codigo] += 1
+                        
+                nombres_materias = []
+                porcentajes_cerradas = []
+                for m in self.materia:
+                    if m.secciones > 0:
+                        cerradas = m.secciones - secciones_abiertas[m.codigo]
+                        if cerradas < 0:
+                            cerradas = 0
+                        pct = (cerradas / m.secciones) * 100
+                        nom = m.nombre if len(m.nombre) <= 15 else f"{m.nombre[:15]}..."
+                        nombres_materias.append(f"{m.codigo}\n{nom}")
+                        porcentajes_cerradas.append(pct)
+                
+                if not nombres_materias:
+                    print("No hay materias definidas.")
+                    continue
+                    
+                plt.figure(figsize=(12, 6))
+                plt.bar(nombres_materias, porcentajes_cerradas, color='salmon')
+                plt.title('Porcentaje de Secciones Cerradas por Materia')
+                plt.xlabel('Materia')
+                plt.ylabel('Porcentaje de Cierre (%)')
+                plt.xticks(rotation=45, ha='right')
+                plt.ylim(0, 100)
+                plt.tight_layout()
+                plt.show()
